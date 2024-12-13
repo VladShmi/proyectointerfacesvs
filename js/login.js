@@ -7,45 +7,51 @@ document.addEventListener("DOMContentLoaded", () => {
   const limpiarBtn = document.getElementById("limpiar");
   const entrarBtn = document.getElementById("entrar");
 
-  // Validación al enviar el formulario
+  const validarNombre = (nombre) => {
+    if (!nombre) return "El campo nombre es obligatorio.";
+    if (!/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{1,20}$/.test(nombre)) return "El nombre solo puede contener letras y espacios, y no más de 20 caracteres.";
+    if (nombre.length > 20) return "El nombre no puede tener más de 20 caracteres.";
+    return "";
+  };
+
+  const validarPassword = (password) => {
+    if (!password) return "El campo contraseña es obligatorio.";
+    if (!/^[a-zA-Z0-9·$%&/()]{8,16}$/.test(password)) {
+      return "La contraseña debe tener entre 8 y 16 caracteres y solo puede incluir letras, números y los caracteres ·$%&/().";
+    }
+    return "";
+  };
+
+  const actualizarErrores = () => {
+    const nombreError = validarNombre(nombreInput.value.trim());
+    const passwordError = validarPassword(passwordInput.value.trim());
+
+    errorNombre.textContent = nombreError;
+    errorPassword.textContent = passwordError;
+  };
+
+  nombreInput.addEventListener("input", actualizarErrores);
+  passwordInput.addEventListener("input", actualizarErrores);
+
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    let isValid = true;
 
-    // Validación del nombre
-    const nombre = nombreInput.value.trim();
-    if (!nombre) {
-      errorNombre.textContent = "Nombre obligatorio.";
-      isValid = false;
-    } else if (!/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{1,20}$/.test(nombre)) {
-      errorNombre.textContent = "Nombre inválido.";
-      isValid = false;
-    } else if (nombre.length > 20) {
-      errorNombre.textContent = "El nombre no puede tener más de 20 caracteres.";
-      isValid = false;
-    } else {
-      errorNombre.textContent = "";
-    }
+    actualizarErrores();
 
-    // Validación de la contraseña
-    const password = passwordInput.value.trim();
-    if (!password) {
-      errorPassword.textContent = "La contraseña es obligatoria.";
-      isValid = false;
-    } else if (!/^[a-zA-Z0-9·$%&/()]{8,16}$/.test(password)) {
-      errorPassword.textContent =
-        "La contraseña debe tener entre 8 y 16 caracteres y solo puede contener letras, números y los caracteres ·$%&/().";
-      isValid = false;
-    } else {
-      errorPassword.textContent = "";
-    }
+    if (!errorNombre.textContent && !errorPassword.textContent) {
+      const successMessage = document.createElement("p");
+      successMessage.textContent = "Acceso concedido. Redirigiendo...";
+      successMessage.style.color = "green";
+      successMessage.id = "success-message";
+      form.appendChild(successMessage);
 
-    if (isValid) {
-      alert("Acceso concedido. Bienvenido a CarbaShop!");
+      setTimeout(() => {
+        successMessage.remove();
+        window.location.href = "main.html";
+      }, 2000);
     }
   });
 
-  // Limpiar el formulario y los mensajes de error
   limpiarBtn.addEventListener("click", () => {
     nombreInput.value = "";
     passwordInput.value = "";
@@ -53,27 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
     errorPassword.textContent = "";
   });
 
-  // Cambiar el color del botón al pasar el ratón por encima
   entrarBtn.addEventListener("mouseover", () => {
-    entrarBtn.style.backgroundColor = "#4CAF50"; // Cambia el color de fondo cuando el ratón está sobre el botón
-    entrarBtn.style.color = "white"; // Cambia el color del texto
+    entrarBtn.classList.add("hovered");
   });
 
   entrarBtn.addEventListener("mouseout", () => {
-    entrarBtn.style.backgroundColor = ""; // Restaura el color de fondo original
-    entrarBtn.style.color = ""; // Restaura el color del texto
-  });
-
-  // Limpiar errores cuando el usuario empieza a escribir
-  nombreInput.addEventListener("input", () => {
-    if (errorNombre.textContent) {
-      errorNombre.textContent = "";
-    }
-  });
-
-  passwordInput.addEventListener("input", () => {
-    if (errorPassword.textContent) {
-      errorPassword.textContent = "";
-    }
+    entrarBtn.classList.remove("hovered");
   });
 });
