@@ -1,69 +1,91 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("formulario");
-  const nombreInput = document.getElementById("nombre");
-  const passwordInput = document.getElementById("password");
-  const errorNombre = document.getElementById("error-nombre");
-  const errorPassword = document.getElementById("error-password");
-  const limpiarBtn = document.getElementById("limpiar");
-  const entrarBtn = document.getElementById("entrar");
+function comprobarVacio(x) {
+  return x.trim() !== "";
+}
 
-  const validarNombre = (nombre) => {
-    if (!nombre) return "El campo nombre es obligatorio.";
-    if (!/^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ\s]{1,20}$/.test(nombre)) return "El nombre solo puede contener letras y espacios, y no más de 20 caracteres.";
-    if (nombre.length > 20) return "El nombre no puede tener más de 20 caracteres.";
-    return "";
-  };
+function mostrarError(errorElemento, mostrar) {
+  if (mostrar) {
+      errorElemento.style.display = "block";
+  } else {
+      errorElemento.style.display = "none";
+  }
+}
 
-  const validarPassword = (password) => {
-    if (!password) return "El campo contraseña es obligatorio.";
-    if (!/^[a-zA-Z0-9·$%&/()]{8,16}$/.test(password)) {
-      return "La contraseña debe tener entre 8 y 16 caracteres y solo puede incluir letras, números y los caracteres ·$%&/().";
-    }
-    return "";
-  };
+function validarNombre() {
+  let nombre = document.querySelector("#nombre");
+  let error = document.querySelector("#error-nombre");
+  let comprobacion = /^[a-zA-ZÑñÁáÉéÍíÓóÚúÜü\s]+$/;
 
-  const actualizarErrores = () => {
-    const nombreError = validarNombre(nombreInput.value.trim());
-    const passwordError = validarPassword(passwordInput.value.trim());
+  if (!comprobarVacio(nombre.value)) {
+      error.textContent = 'Nombre obligatorio';
+      mostrarError(error, true);
+      return false;
+  } else if (!comprobacion.exec(nombre.value)) {
+      error.textContent = "Nombre inválido";
+      mostrarError(error, true);
+      return false;
+  } else if (nombre.value.length > 20) {
+      error.textContent = "El nombre no puede tener más de 20 caracteres";
+      mostrarError(error, true);
+      return false;
+  }
 
-    errorNombre.textContent = nombreError;
-    errorPassword.textContent = passwordError;
-  };
+  mostrarError(error, false);
+  return true;
+}
 
-  nombreInput.addEventListener("input", actualizarErrores);
-  passwordInput.addEventListener("input", actualizarErrores);
+function validarContraseña() {
+  let contraseña = document.querySelector("#password");
+  let error = document.querySelector("#error-password");
+  let comprobacion = /^[a-zA-Z0-9·$%&/().]{8,16}$/;
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+  if (!comprobarVacio(contraseña.value)) {
+      error.textContent = "La contraseña es obligatoria.";
+      mostrarError(error, true);
+      return false;
+  } else if (!comprobacion.exec(contraseña.value)) {
+      error.textContent = "La contraseña debe tener entre 8 y 16 caracteres y solo puede contener letras, números y los caracteres ·$%&/().";
+      mostrarError(error, true);
+      return false;
+  }
 
-    actualizarErrores();
+  mostrarError(error, false);
+  return true;
+}
 
-    if (!errorNombre.textContent && !errorPassword.textContent) {
-      const successMessage = document.createElement("p");
-      successMessage.textContent = "Acceso concedido. Redirigiendo...";
-      successMessage.style.color = "green";
-      successMessage.id = "success-message";
-      form.appendChild(successMessage);
+function limpiarDatos() {
+  let formulario = document.querySelector("#formulario");
+  formulario.reset();
 
-      setTimeout(() => {
-        successMessage.remove();
-        window.location.href = "main.html";
-      }, 2000);
-    }
+  let errores = document.querySelectorAll(".error-message");
+  errores.forEach((error) => {
+      error.style.display = "none";
+      error.textContent = "";
   });
+}
 
-  limpiarBtn.addEventListener("click", () => {
-    nombreInput.value = "";
-    passwordInput.value = "";
-    errorNombre.textContent = "";
-    errorPassword.textContent = "";
-  });
+function validarFormulario(event) {
+  event.preventDefault();
 
-  entrarBtn.addEventListener("mouseover", () => {
-    entrarBtn.classList.add("hovered");
-  });
+  let nombreValido = validarNombre();
+  let contraseñaValida = validarContraseña();
 
-  entrarBtn.addEventListener("mouseout", () => {
-    entrarBtn.classList.remove("hovered");
-  });
-});
+  if (!nombreValido || !contraseñaValida) {
+    alert("Compruebe los datos introducidos");
+    return;
+  }
+
+  window.location.href = "./main.html";
+}
+
+// Event listeners
+let nombre = document.querySelector("#nombre");
+nombre.addEventListener("blur", validarNombre);
+
+let contraseña = document.querySelector("#password");
+contraseña.addEventListener("blur", validarContraseña);
+
+let limpiar = document.querySelector("#limpiar");
+limpiar.addEventListener("click", limpiarDatos);
+
+let formulario = document.querySelector("#formulario");
+formulario.addEventListener("submit", validarFormulario);
